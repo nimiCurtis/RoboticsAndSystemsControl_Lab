@@ -133,7 +133,7 @@ def angles_to_follow():
     pass
 
 
-''' answer for prerequst exercise'''
+''' answer for prerequest exercise'''
 
 angles  =  angles_to_follow()
 t = ['t1','t2','t3','t4','t5']
