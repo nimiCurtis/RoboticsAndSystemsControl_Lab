@@ -45,21 +45,6 @@ def dh(alpha, a, d, theta):
                    [0, 0, 0, 1]])
 
 
-
-def transform_matrices():
-    dh_dic = set_dh_table()
-
-    T_01 = dh(dh_dic[alpha1], dh_dic[a1], dh_dic[d1], dh_dic[q1])
-    T_12 = dh(dh_dic[alpha2], dh_dic[a2], dh_dic[d2], dh_dic[q2])
-    T_23 = dh(dh_dic[alpha3], dh_dic[a3], dh_dic[d3], dh_dic[q3])
-    T_34 = dh(dh_dic[alpha4], dh_dic[a4], dh_dic[d4], dh_dic[q4])
-    T_45 = dh(dh_dic[alpha5], dh_dic[a5], dh_dic[d5], dh_dic[q5])
-    T_56 = dh(dh_dic[alpha6], dh_dic[a6], dh_dic[d6], dh_dic[q6])
-
-    Tes = Matrix([[0, -1, 0, 0], [1, 0, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]])  # mandatory
-    T = T_01 * T_12 * T_23 * T_34 * T_45 * T_56 * Tes
-    return T
-
 def FK(theta_list):
     """
     Args:
@@ -81,13 +66,14 @@ def FK(theta_list):
 
     Tes = Matrix([[0, -1, 0, 0], [1, 0, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]])  # mandatory
     T = T_01 * T_12 * T_23 * T_34 * T_45 * T_56 * Tes
+    print(T[0:3,3])
 
     ''' fill angles to dict for sympy calculations'''
     q = [q1, q2, q3, q4, q5, q6]
     theta_dict = {}
     for i in range(len(theta_list)):
         theta_dict[q[i]] = theta_list[i]
-
+    print(theta_dict)
     ''' 
     homogeneous transformation matrix from base_link to end_effector [type: numeric matrix] 
     because we are using sympy, we have to use evalf.
@@ -134,12 +120,11 @@ def angles_to_follow():
 
     return angles
 
-    pass
 
 
 ''' answer for prerequest exercise'''
 angles = angles_to_follow()
-t = ['t1', 't2', 't3', 't4', 't5']
+t = ['t1']
 for angles_vec in t:
     T_ans = np.array(FK(angles[angles_vec]))
     
