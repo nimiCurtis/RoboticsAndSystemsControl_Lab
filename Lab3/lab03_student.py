@@ -227,7 +227,50 @@ def IK_NR_position(guess, target):
     Returns:
         Q* - joint configuration angles [1, 6]
     '''
-    pass
+    target = Matrix([target]).transpose()
+    guess_pos = FK(guess)[0:3,3]
+    Q = Matrix([guess])
+    e = target - guess_pos
+    iterates = 200
+    i = 0
+    k =  0.8
+    JL = LinearJacobian(Q)
+    JL_inv = JL.pinv()
+    epsilon = 0.000001
+
+    while((e.norm()>epsilon) and i < iterates):
+        Q_next = Q + (k*(JL_inv)*e).transpose()
+        next_pos = FK(Q_next)[0:3,3]
+        Q = Q_next
+        JL = LinearJacobian(Q)
+        JL_inv = JL.pinv()
+        e = target - next_pos
+        i+=1
+    print(e.norm())
+    print("\n")
+    print(i)
+    return Q    
+        
+def check_IK():
+    angles = angles_to_follow()
+    #angles_mat = Matrix(angles['t1'])
+    print("\n")
+    print(FK(angles['t1'])[0:3,3])
+    target = list(FK(angles['t1'])[0:3,3])
+    print("\n")
+    print([np.deg2rad(300), np.deg2rad(300),0, np.deg2rad(300), np.deg2rad(300), 0])
+    guess = [np.deg2rad(100.848), np.deg2rad(190.937), np.deg2rad(100.041), np.deg2rad(10.246), np.deg2rad(100.064), np.deg2rad(50)]
+    print("\n")
+    print(guess)
+    print("\n")
+
+    Q = IK_NR_position(guess, target)
+    print("\n")
+    print(Q)
+    print("\n")
+    print(FK(list(Q))[0:3,3])
+
+check_IK()
 
 
 
