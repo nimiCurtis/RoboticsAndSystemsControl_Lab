@@ -66,14 +66,14 @@ def FK(theta_list):
 
     Tes = Matrix([[0, -1, 0, 0], [1, 0, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]])  # mandatory
     T = T_01 * T_12 * T_23 * T_34 * T_45 * T_56 * Tes
-    print(T[0:3,3])
+    #print(T[0:3,3])
 
     ''' fill angles to dict for sympy calculations'''
     q = [q1, q2, q3, q4, q5, q6]
     theta_dict = {}
     for i in range(len(theta_list)):
         theta_dict[q[i]] = theta_list[i]
-    print(theta_dict)
+    #print(theta_dict)
     ''' 
     homogeneous transformation matrix from base_link to end_effector [type: numeric matrix] 
     because we are using sympy, we have to use evalf.
@@ -107,16 +107,27 @@ def angles_to_follow():
     """
     Returns: Dictionary of the desired angels
     """
-    angles = {'t1': [np.deg2rad(319.848), np.deg2rad(293.937), np.deg2rad(341.041), np.deg2rad(33.246), np.deg2rad(306.064), np.deg2rad(10.556)],
-              't2': [np.deg2rad(5.337), np.deg2rad(339.071), np.deg2rad(113.483), np.deg2rad(326.721), np.deg2rad(102.230), np.deg2rad(314.408)],
-              't3': [np.deg2rad(110.799), np.deg2rad(293.646), np.deg2rad(18.081), np.deg2rad(274.031), np.deg2rad(3.567), np.deg2rad(14.832)],
-              't4': [np.deg2rad(154.117), np.deg2rad(329.840), np.deg2rad(103.438), np.deg2rad(219.285), np.deg2rad(47.641), np.deg2rad(44.554)],
-              't5': [np.deg2rad(205.872), np.deg2rad(314.754), np.deg2rad(113.501), np.deg2rad(261.057), np.deg2rad(86.366), np.deg2rad(31.827)],
-              't6': [np.deg2rad(381.434), np.deg2rad(326.417), np.deg2rad(5.659), np.deg2rad(260.705), np.deg2rad(17.092), np.deg2rad(84.800)],
-              't7': [np.deg2rad(323.943), np.deg2rad(000.967), np.deg2rad(354.330), np.deg2rad(231.825), np.deg2rad(353.371), np.deg2rad(84.333)],
-              't8': [np.deg2rad(11.785), np.deg2rad(41.338), np.deg2rad(5.399), np.deg2rad(224.618), np.deg2rad(51.709), np.deg2rad(93.408)],
-              't9': [np.deg2rad(240.502), np.deg2rad(46.017), np.deg2rad(354.122), np.deg2rad(263.023), np.deg2rad(46.490), np.deg2rad(73.568)],
-              't10': [np.deg2rad(237.685), np.deg2rad(3.525), np.deg2rad(63.533), np.deg2rad(309.917), np.deg2rad(290.173), np.deg2rad(276.608)]}
+    angles = {'t1': [np.deg2rad(332.134), np.deg2rad(324.773), np.deg2rad(46.888), np.deg2rad(359.105), np.deg2rad(272.026), np.deg2rad(13.36)],
+              't2': [np.deg2rad(280.6), np.deg2rad(277.2), np.deg2rad(296.959), np.deg2rad(3.946), np.deg2rad(255.951), np.deg2rad(345.532)],
+              't3': [np.deg2rad(269.757), np.deg2rad(279.518), np.deg2rad(83.362), np.deg2rad(39.263), np.deg2rad(268.774), np.deg2rad(318.686)],
+              't4': [np.deg2rad(129.176), np.deg2rad(294.538), np.deg2rad(53.908), np.deg2rad(354.559), np.deg2rad(84.608), np.deg2rad(26.319)],
+              't5': [np.deg2rad(346.403), np.deg2rad(284.409), np.deg2rad(103.395), np.deg2rad(16.35), np.deg2rad(270.916), np.deg2rad(271.911)],
+              
+              't6': [np.deg2rad(148.47), np.deg2rad(95.23), np.deg2rad(72.32), np.deg2rad(-20.18), np.deg2rad(86.52), np.deg2rad(100)],
+              't7': [np.deg2rad(121.06), np.deg2rad(108.44), np.deg2rad(33.4), np.deg2rad(60.87), np.deg2rad(92.37), np.deg2rad(100)],
+              't8': [np.deg2rad(-65.79), np.deg2rad(-38.99), np.deg2rad(109.77), np.deg2rad(132.68), np.deg2rad(-9.04), np.deg2rad(100)],
+              't9': [np.deg2rad(80.01), np.deg2rad(-49.3), np.deg2rad(90.83), np.deg2rad(-176.38), np.deg2rad(62.4), np.deg2rad(100)],
+              't10': [np.deg2rad(-176.39), np.deg2rad(142.94), np.deg2rad(122.91), np.deg2rad(-66.59), np.deg2rad(127.66), np.deg2rad(100)],
+              't11': [np.deg2rad(168.89), np.deg2rad(83.2), np.deg2rad(-121.61), np.deg2rad(12.82), np.deg2rad(104.92), np.deg2rad(100)],
+
+              't12': [np.deg2rad(-3.57), np.deg2rad(-89.55), np.deg2rad(-100.33), np.deg2rad(-66.04), np.deg2rad(-111.77), np.deg2rad(10)],
+              't13': [np.deg2rad(-69.17), np.deg2rad(-1.58), np.deg2rad(112.58), np.deg2rad(47), np.deg2rad(-48.02), np.deg2rad(10)],
+              't14': [np.deg2rad(132.63), np.deg2rad(104.62), np.deg2rad(37.88), np.deg2rad(59.11), np.deg2rad(-115.05), np.deg2rad(10)],
+              't15': [np.deg2rad(-76.98), np.deg2rad(29.93), np.deg2rad(-103.45), np.deg2rad(17.4), np.deg2rad(-2.48), np.deg2rad(10)],
+              't16': [np.deg2rad(28.53), np.deg2rad(-91.73), np.deg2rad(126.71), np.deg2rad(-105.42), np.deg2rad(135.09), np.deg2rad(10)],
+              't17': [np.deg2rad(19.44), np.deg2rad(-29.42), np.deg2rad(118.01), np.deg2rad(40.54), np.deg2rad(-3.38), np.deg2rad(10)]
+
+              }
 
     return angles
 
@@ -124,8 +135,10 @@ def angles_to_follow():
 
 ''' answer for prerequest exercise'''
 angles = angles_to_follow()
-t = ['t1']
+t = ['t12','t13','t14','t15','t16','t17']
 for angles_vec in t:
     T_ans = np.array(FK(angles[angles_vec]))
+    print(T_ans)
+    print("")
+
     
-    xyz_euler(T_ans)
