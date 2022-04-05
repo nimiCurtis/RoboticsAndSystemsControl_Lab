@@ -19,7 +19,7 @@ def traj_gen_config(q1, q2, t, Tf):
                 --> q, dq, ddq --> 3 object of np.array((6,))
 
     """
-    ## equation of angle pos is : q(t) = a0 + a1t +a2t^2 +a3t^2 +a4t^3 +a5t^4 
+    
     ## need to define start&end vel and accel q'(0),q'(Tf) & q''(0),q''(Tf)
     ## according to start&end pos,vel,accel we can calc a0 - a5
     ## and then we can find q'(t) , q''(t) of a given t
@@ -31,6 +31,9 @@ def traj_gen_config(q1, q2, t, Tf):
     # define alpha1 = start accel & alpha2 = end accel [deg/(s^2)]
     alpha1 = np.array([0 , 0 , 0 , 0 , 0 , 0 ])
     alpha2 = np.array([0 , 0 , 0 , 0 , 0 , 0 ])
+
+    ### Version of 5-order polynom with constraints of vel and accel ###
+    ## equation of angle pos is : q(t) = a0 + a1t +a2t^2 +a3t^3 +a4t^4 +a5t^5 
 
     # based on the algebric equation X = Aa
     # set results 'X' vector  --> np.array((6,6)) 
@@ -54,7 +57,29 @@ def traj_gen_config(q1, q2, t, Tf):
     dq  = np.dot( np.array([0,1,2*t,3*(t**2),4*(t**3),5*(t**4)]), a) # --> np.array((6,)) [deg/s]
     ddq = np.dot( np.array([0,0,2,6*t,12*(t**2),20*(t**3)]) ,a ) # --> np.array((6,)) [deg/(s^2)]
 
+    ### Version of 3-order polyno with constraints of vel only ###
+    ## equation of angle pos is : q(t) = a0 + a1t +a2t^2 +a3t^3  
+
+    # set results 'X' vector  --> np.array((6,4)) 
+    X2  = np.array([q1,w1,q2,w2])
+
+    # set coefficients 'A' matrix --> np.array((4,4))
+    A2 = np.array([[1 , 0 , 0 , 0 ],
+                   [0 , 1 , 0 , 0 ],
+                   [1 , Tf , Tf**2 ,    Tf**3  ],
+                   [0 , 1  , 2*Tf  , 3*(Tf**2) ]]
+                )
+
+    # calc coefficients 'a' vector by a = inv(A)*X --> np.array((6,4))
+    a2 = np.matmul(np.linalg.inv(A2),X2)
+
+    # calc q,dq,ddq by the quintic polynomial equation and the derivatives of q(t) >> writen in the first comment 
+    q2   = np.dot( np.array([1,t,t**2,t**3]), a2 ) # equals to a[0]*1 + a[1]*t + a[2]*t^2 + ...  --> np.array((6,)) [deg]
+    dq2  = np.dot( np.array([0,1,2*t,3*(t**2)]), a2) # --> np.array((6,)) [deg/s]
+    ddq2 = np.dot( np.array([0,0,2,6*t]) , a2 ) # --> np.array((6,)) [deg/(s^2)]
+
     return [q , dq , ddq]
+    #return [q2 , dq2 , ddq2]
 
 def traj_gen_task(x_s, x_g, t, Tf):
     """
@@ -99,7 +124,7 @@ def generate_q_goals_list():
 def check_traj_gen_config():
     q1 = np.array([100,100,100,100,100,100])  # [degrees] --> np.array((6,))
     q2 = np.array([10,10,10,10,10,10]) # [degrees] --> np.array((6,))
-    t = 0.2  # [sec]
+    t = 1  # [sec]
     Tf = 1 # [sec]
     [q,dq,ddq] = traj_gen_config(q1,q2,t,Tf)
 
