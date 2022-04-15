@@ -5,7 +5,7 @@ import numpy as np
 ######## Lab 4 ########
 #######################
 
-def traj_gen_config(q1, q2, t, Tf):
+def traj_gen_config_5order(q1, q2, t, Tf):
     """
     path plan configuration space
 
