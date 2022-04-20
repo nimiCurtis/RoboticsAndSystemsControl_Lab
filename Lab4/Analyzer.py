@@ -11,8 +11,8 @@ from lab02_student import FK
 
 
 ## set your own path to data dir ##
-data_path = 'f:/DATA/robotics_lab/RoboticsAndSystemsControl_Lab/Lab4/data/data'
-
+#data_path = 'f:/DATA/robotics_lab/RoboticsAndSystemsControl_Lab/Lab4/data/data'
+data_path = 'C:/Users/15coh/Desktop/RoboticsAndSystemsControl_Lab/Lab4/data/data'
 ## data organized as array of arrays of arrays ~ data[number of trial]['0' for angles array / '1' for xyz][index of joint / index of coordinate]
 data = []
 
@@ -43,6 +43,7 @@ jointPoses1 = np.array([[28.09,318.093,358.474,306.245,299.005,66.133],
 
 ## set trial array
 trial1_conf = data[0][1]
+#print(trial1_conf)
 trial1_task = data[1][1][9:]
 ## find theoretical path
 theo1_conf = [] ## doesnt work
@@ -52,16 +53,18 @@ theo1_task = []
 N1 = len(trial1_task)  # taken from lab_exe code
 t1= np.linspace(0,Tf,int(N1/3))
 
+
 ## use the functions from the pre-lab
 for i in range(3):
     for dt in t1:
-        theo1_conf.append(list(traj_gen_config(jointPoses1[i] , jointPoses1[i+1] , dt , Tf )[0]))
-        theo1_conf.append(list(FK(traj_gen_config(jointPoses1[i] , jointPoses1[i+1] , dt , Tf )[0])[0:3,3])) # takes just the q array from the return of traj_gen_config function
+        #theo1_conf.append(list(traj_gen_config(jointPoses1[i] , jointPoses1[i+1] , dt , Tf )[0]))
+        theo1_conf.append(list(FK(traj_gen_config(np.deg2rad(jointPoses1[i]) , np.deg2rad(jointPoses1[i+1]) , dt , Tf )[0])[0:3,3])) # takes just the q array from the return of traj_gen_config function
         theo1_task.append(list(traj_gen_task(x_1[i] , x_1[i+1] , dt , Tf )[0])) # takes just the x array from the return of traj_gen_task function
 
 ## convert to np.array because of plotting method  
 theo1_task = np.array(theo1_task)
 theo1_conf = np.array(theo1_conf)
+#print(theo1_conf)
 
 ## --------------------------------------------------------------------- ##
 
@@ -93,7 +96,7 @@ t2= np.linspace(0,Tf,int(N2/3))
 ## use the functions from the pre-lab
 for i in range(3):
     for dt in t2:
-        theo2_conf.append(list(FK(traj_gen_config(jointPoses2[i] , jointPoses2[i+1] , dt , Tf )[0])[0:3,3])) # takes just the q array from the return of traj_gen_config function
+        theo2_conf.append(list(FK(traj_gen_config(np.deg2rad(jointPoses2[i]) , np.deg2rad(jointPoses2[i+1]) , dt , Tf )[0])[0:3,3])) # takes just the q array from the return of traj_gen_config function
         theo2_task.append(list(traj_gen_task(x_2[i] , x_2[i+1] , dt , Tf )[0])) # takes just the x array from the return of traj_gen_task function
 
 ## convert to np.array because of plotting method  
@@ -130,17 +133,14 @@ t3= np.linspace(0,Tf,int(N3/3))
 ## use the functions from the pre-lab
 for i in range(3):
     for dt in t3:
-        theo3_conf3.append(list(FK(traj_gen_config(jointPoses3[i] , jointPoses3[i+1] , dt , Tf )[0])[0:3,3])) # takes just the q array from the return of traj_gen_config function
-        theo3_conf5.append(list(FK(traj_gen_config_5order(jointPoses3[i] , jointPoses3[i+1] , dt , Tf )[0])[0:3,3])) # takes just the q array from the return of traj_gen_config function
+        theo3_conf3.append(list(FK(traj_gen_config(np.deg2rad(jointPoses3[i]) , np.deg2rad(jointPoses3[i+1]) , dt , Tf )[0])[0:3,3])) # takes just the q array from the return of traj_gen_config function
+        theo3_conf5.append(list(FK(traj_gen_config_5order(np.deg2rad(jointPoses3[i]) , np.deg2rad(jointPoses3[i+1]) , dt , Tf )[0])[0:3,3])) # takes just the q array from the return of traj_gen_config function
         theo3_task.append(list(traj_gen_task(x_3[i] , x_3[i+1] , dt , Tf )[0])) # takes just the x array from the return of traj_gen_task function
 
 ## convert to np.array because of plotting method  
 theo3_task = np.array(theo3_task)
 theo3_conf3 = np.array(theo3_conf3)
 theo3_conf5 = np.array(theo3_conf5)
-
-
-
 
 ## auxilary function for plotting
 def plot(theo_path, trial_path,title , x_goals):
@@ -158,10 +158,40 @@ def plot(theo_path, trial_path,title , x_goals):
     plt.show()
 
 ## plotting ##
-plot( theo1_task , trial1_task , 'Trial 1 - Theoretical vs Experiment - in Task Space' , x_1)
-plot( theo2_task , trial2_task , 'Trial 2 - Theoretical vs Experiment - in Task Space' , x_2)
-plot( theo3_task , trial3_task , 'Trial 3 - Theoretical vs Experiment - in Task Space' , x_3)
+#plot( theo1_task , trial1_task , 'Trial 1 - Theoretical vs Experiment - in Task Space' , x_1)
+#plot( theo2_task , trial2_task , 'Trial 2 - Theoretical vs Experiment - in Task Space' , x_2)
+#plot( theo3_task , trial3_task , 'Trial 3 - Theoretical vs Experiment - in Task Space' , x_3)
+#plot( theo1_conf , trial1_conf , 'Trial 1 - Theoretical vs Experiment - in Conf Space' , x_1)
+#plot( theo2_conf , trial2_conf , 'Trial 2 - Theoretical vs Experiment - in Conf Space' , x_2)
+#plot( theo3_conf3 , trial3_conf3 , 'Trial 3 - Theoretical vs Experiment - in Conf Space' , x_3)
 
+## slicing trail vectors to be in the same length of the theo vectors.
 
+trial1_conf_error_calc = trial1_conf[11:]
+trial2_conf_error_calc = trial2_conf[35:]
+trial3_conf3_error_calc = trial3_conf3[40:91] # 123(51)
+theo1_task_error = theo1_task[0:len(theo1_task),0:3]
+theo2_task_error = theo2_task[0:len(theo2_task),0:3]
+theo3_task_error = theo3_task[0:len(theo3_task),0:3]
 
-  
+## Calc the average error
+
+traj_task1_error = np.mean(np.absolute(np.subtract(theo1_task_error,trial1_task)))
+traj_task2_error = np.mean(np.absolute(np.subtract(theo2_task_error,trial2_task)))
+traj_task3_error = np.mean(np.absolute(np.subtract(theo3_task_error,trial3_task)))
+traj_conf1_error = np.mean(np.absolute(np.subtract(theo1_conf,trial1_conf_error_calc)))
+traj_conf2_error = np.mean(np.absolute(np.subtract(theo2_conf,trial2_conf_error_calc)))
+traj_conf3_error = np.mean(np.absolute(np.subtract(theo3_conf3,trial3_conf3_error_calc)))
+
+print('traj_task1_error is')
+print(traj_task1_error)
+print('traj_task2_error is')
+print(traj_task2_error)
+print('traj_task3_error is')
+print(traj_task3_error)
+print('traj_conf1_error is')
+print(traj_conf1_error)
+print('traj_conf2_error is')
+print(traj_conf2_error)
+print('traj_conf3_error is')
+print(traj_conf3_error)
