@@ -43,11 +43,9 @@ def feature_jacobian(t_curr, R_curr, target_feature_R):
     Input:  (object in current camera frame)
             t_input, 1x3 vector
             R_input, 3x3 matrix
-    Output: Interation Matrix (feature Jacobian), 6x6
+    Output: Interaction Matrix (feature Jacobian), 6x6
     '''
 
-    ### asumming that theta in the theory background in the R_input, 3x3 matrix
-    ### asumming that u in the theory background in the t_input, 1x3 vector
 
     R_multi = R_curr*np.transpose(target_feature_R)
     r = R.from_matrix(R_multi)
@@ -56,11 +54,11 @@ def feature_jacobian(t_curr, R_curr, target_feature_R):
 
 
     p_curr = t_curr # current position vector p
-    S=mr.VecTose3(p_curr) # skew-symmetric representation of a vector p
-    J_theta_u= np.identity(3) - (theta/2)*S+(1-(np.sinc(theta)/(np.sinc(theta/2)**2)))*(S**2)
-    lines_1to3 = np.concatenate(-(np.identity(3), S), axis=None)
-    lines_4to6 = np.concatenate(np.zeros((3,3)),J_theta_u, axis= None)
-    L_out = np.concatenate(lines_1to3, lines_4to6, axis=0) # The Jacobian J of the gripper 6*6
+    S = mr.VecToso3(p_curr) # skew-symmetric representation of a vector p
+    J_theta_u = np.identity(3) - (theta/2)*S+(1-(np.sinc(theta)/(np.sinc(theta/2)**2)))*(S**2)
+    lines_1to3 = np.concatenate([-np.identity(3), S], axis=1)
+    lines_4to6 = np.concatenate([np.zeros((3,3)),J_theta_u], axis= 1)
+    L_out = np.concatenate([lines_1to3, lines_4to6], axis=0) # The Jacobian J of the gripper 6*6
     return L_out
 
 def control(L, error, _lambda):
@@ -76,5 +74,20 @@ def control(L, error, _lambda):
 
     return np.transpose(t) 
 
-    
+def check():
+    t_curr = np.array([0, 0, 1])
+    R_curr = np.array([[0, 0, 1],
+                    [0.2 , 0.4 , 0.5],
+                    [0.7 ,0 ,1]])
+    target_feature_t = np.array([1, 0.2, 0.5])
+    target_feature_R = np.array([[0, 1, 1],
+                    [0.1 , 1 , 0],
+                    [0.2 ,0 ,0]])
+    print(calculate_error(t_curr, R_curr, target_feature_t, target_feature_R))
+    print("")
+    print(feature_jacobian(t_curr, R_curr, target_feature_R))
+    print("")
+    print(control(feature_jacobian(t_curr, R_curr, target_feature_R) ,calculate_error(t_curr, R_curr, target_feature_t, target_feature_R),2 ))
 
+if __name__ == '__main__':
+    check()
