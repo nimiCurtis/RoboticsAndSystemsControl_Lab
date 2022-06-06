@@ -33,10 +33,11 @@ def steering_angle(A_robot_cam, A_base_cam, p_i_base):
         alpha: Steering angle to next point [degrees].
     """
     
-    A_pi_base = np.concatenate(  (p_i_base , [1]) , axis=0)
-    p_i_car = np.matmul( np.matmul(np.linalg.inv(A_robot_cam), A_base_cam),A_pi_base) 
+    A_pi_base = np.concatenate((p_i_base , [1]) , axis=0)
+    p_i_car = np.matmul(np.matmul(np.linalg.inv(A_robot_cam), A_base_cam),A_pi_base) 
     alpha = np.rad2deg(np.arctan2(p_i_car[0],p_i_car[1]))
     return p_i_car , alpha
+
 
 def check_steering_angle():
     A_cam_robot = np.array([[-0.1614 ,-0.6982 , 0.6975, 0.412] ,
@@ -48,8 +49,6 @@ def check_steering_angle():
                                         [ 0.6261 , 0.5783 , 0.5230 , 0.797 ] ,
                                         [ 0. , 0. , 0. , 1. ]] )
     pi_base = np.array( [ 0.5 , 1.1 , 0. ] ) 
-    
-
     print(steering_angle(A_cam_robot,A_cam_base,pi_base))
 
 
