@@ -98,6 +98,7 @@ def is_disk_moving(p_d, p_d_new, thresh=0.005):
         return False
 
 def reach_disk(p_r,p_d, path):
+    print("finding the new position of the disk")
     tolerance = 0.01
     i = 1
     for next_goal in path:
@@ -117,6 +118,7 @@ def reach_disk(p_r,p_d, path):
             
             p_r_new, p_o_new, p_d_new = field_status()
             if is_disk_moving(p_d[:2,3],p_d_new[:2,3]):
+                print("Disk is moving >> get new path plan!")
                 break
 
             left, right = calc_motor_command(phi)
@@ -125,19 +127,16 @@ def reach_disk(p_r,p_d, path):
                 break
         i += 1
         cntrlr.motor_command(1, 1)
+    print("Reached disk!! ")
 
 def keep_straight():
+        print("Keep straight!!")
         cntrlr.motor_command(-1, -1)
 
 # r include robot radius and disk radius
 def find_goal(p_d, r = 0.015):
+    print("Finding the new position of the disk")
     return [p_d[0] - r , p_d[1] , p_d[2]]
-
-
-    
-
-
-
 
 
 if __name__ == "__main__":
@@ -168,9 +167,10 @@ if __name__ == "__main__":
         if not(with_disk(disk_relative_to_robot)):
             reach_disk()  
 
-        
-        if with_disk(disk_relative_to_robot):
+
+        while(with_disk(disk_relative_to_robot)):
             keep_straight()
+
         
         
         
