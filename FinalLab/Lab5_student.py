@@ -5,7 +5,8 @@ import matplotlib.pyplot as plt
 from scipy.spatial.transform import Rotation as Rot
 import numpy as np
 
-from AStar import RRTStar, show_animation
+#from AStar import RRTStar, show_animation
+from rrt_star import  RRTStar , show_animation
 
 
 def planner(Pc, Pg, O, B=[-0.05, 0.65], delta=0.02, show_animation=True):
@@ -59,14 +60,14 @@ def steering_angle(A_r, p_i):
 
     Returns:
         p_i_robot: 2d vector of next point in path with respect to robot frame: (x, y)
-        alpha: Steering angle to next point [degrees].
+        phi: Steering angle to next point [degrees].
     """
 
 
-    p_i = np.concatenate((p_i, [0,1]), axis=0)
+    p_i = np.concatenate((p_i, [0,1]), axis=0) ## ??? dimensions
     p_i_robot = np.matmul(np.linalg.inv(A_r), p_i)[0:2]
-    alpha = np.rad2deg(np.arctan2(p_i_robot[0], p_i_robot[1]))
-    return p_i_robot , alpha
+    phi = np.rad2deg(np.arctan2(p_i_robot[0], p_i_robot[1]))
+    return p_i_robot , phi
 
 def main():
     print("Start " + __file__)
@@ -74,11 +75,6 @@ def main():
     # ====Search Path with RRT====
     obstacle_list = [
         (5, 5, 1),
-        (3, 6, 2),
-        (3, 8, 2),
-        (3, 10, 2),
-        (7, 5, 2),
-        (9, 5, 2),
         (8, 10, 1),
         (6, 12, 1),
     ]  # [x,y,size(radius)]
@@ -106,5 +102,5 @@ def main():
     plt.show()
 
 
-# if __name__ == '__main__':
-#     main()
+if __name__ == '__main__':
+     main()

@@ -40,7 +40,7 @@ class RRTStar(RRT):
                  max_iter=300,                          ####????????????????????
                  connect_circle_dist=50.0,
                  search_until_max_iter=False,
-                 robot_radius=0.0):
+                 robot_radius=0.05):
         """
         Setting Parameter
         start:Start Position [x,y]

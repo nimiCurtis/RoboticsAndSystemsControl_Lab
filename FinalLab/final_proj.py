@@ -10,11 +10,13 @@ import math
 from scipy.spatial.transform import Rotation as R
 import sys, os
 
+from sympy import true
+
 sys.path.insert(0, r'../common/Aruco_Tracker-master')
 sys.path.insert(0, r'../Lab5')
 
 from aruco_module import aruco_track
-from Lab5_car import planner, steering_angle
+from Lab5_student import planner, steering_angle
 from car_control import Controller
 import cv2
 
@@ -82,6 +84,60 @@ def field_status():
         print('Error! Cannot detect frames')
         cntrlr.motor_command(1., 1.)
 
+def with_disk(disk_relative_to_robot , R = 0.01 ):
+    distance_to_disk = np.linalg.norm(disk_relative_to_robot[:2])
+    if( distance_to_disk <= R) :
+        return True
+    else:
+        return False
+
+def is_disk_moving(p_d, p_d_new, thresh=0.005):
+    if np.linalg.norm(p_d - p_d_new)>=thresh:
+        return True
+    else:
+        return False
+
+def reach_disk(p_r,p_d, path):
+    tolerance = 0.01
+    i = 1
+    for next_goal in path:
+        next_ = [10e2, 10e2]
+        while np.linalg.norm(next_[:2]) > tolerance:
+            print(f'Attempting to reach point: {i} of {len(path)}')
+            t_curr, R_curr, ids = tracker.track() ## ??
+            try:
+                next_ , phi = steering_angle(p_r,next_goal) 
+                #executed_path.append(list(curr))
+                print(f' Phi: {round(phi)}, error: {next_[:2]}\n Distance: {np.linalg.norm(next_[:2])}')
+            except:
+                continue
+            if np.linalg.norm(next_) <= tolerance:
+                cntrlr.motor_command(1, 1)
+                continue
+            
+            p_r_new, p_o_new, p_d_new = field_status()
+            if is_disk_moving(p_d[:2,3],p_d_new[:2,3]):
+                break
+
+            left, right = calc_motor_command(phi)
+            cntrlr.motor_command(-left, -right)
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break
+        i += 1
+        cntrlr.motor_command(1, 1)
+
+def keep_straight():
+        cntrlr.motor_command(-1, -1)
+
+# r include robot radius and disk radius
+def find_goal(p_d, r = 0.015):
+    return [p_d[0] - r , p_d[1] , p_d[2]]
+
+
+    
+
+
+
 
 
 if __name__ == "__main__":
@@ -101,37 +157,31 @@ if __name__ == "__main__":
     executed_path = []
 
 ##########################################################
-
-    p_r, p_o, p_d = field_status()
-    obs = None   ######################change
-    path_ = planner((p_r)[:2, 3].tolist(),
-                          (p_d)[:2, 3].tolist(),
-                          obs, show_animation=True)
-
     while cntrlr.Connected: #and cntrlr.communicate:
-        tolerance = 0.01
-        i = 1
-        for next_goal in path_:
-            next_ = [10e2, 10e2]
-            while np.linalg.norm(next_[:2]) > tolerance:
-                print(f'Attempting to reach point: {i} of {len(path_)}')
-                t_curr, R_curr, ids = tracker.track()
-                try:
-                    next_ , phi = steering_angle() 
-                    #executed_path.append(list(curr))
-                    print(f' Phi: {round(phi)}, error: {next_[:2]}\n Distance: {np.linalg.norm(next_[:2])}')
-                except:
-                    continue
-                if np.linalg.norm(next_) <= tolerance:
-                    cntrlr.motor_command(1, 1)
-                    continue
-                left, right = calc_motor_command(phi)
-                cntrlr.motor_command(-left, -right)
-                if cv2.waitKey(1) & 0xFF == ord('q'):
-                    break
-            i += 1
-            cntrlr.motor_command(1, 1)
+        p_r, p_o, p_d = field_status()
+        obs = None   ######################change
+        path_ = planner((p_r)[:2, 3].tolist(),
+                          find_goal((p_d)[:2, 3].tolist()),
+                          obs, show_animation=True)
+        disk_relative_to_robot , phi_to_disk = steering_angle(p_r , p_d[:2,3])
 
+        if not(with_disk(disk_relative_to_robot)):
+            reach_disk()  
+
+        
+        if with_disk(disk_relative_to_robot):
+            keep_straight()
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
 
 
 
