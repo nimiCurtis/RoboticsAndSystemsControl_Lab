@@ -84,7 +84,7 @@ def field_status():
         print('Error! Cannot detect frames')
         cntrlr.motor_command(1., 1.)
 
-def with_disk(disk_relative_to_robot , R = 0.01 ):
+def with_disk(disk_relative_to_robot , R = 0.025):
     distance_to_disk = np.linalg.norm(disk_relative_to_robot[:2])
     if( distance_to_disk <= R) :
         return True
@@ -96,6 +96,12 @@ def is_disk_moving(p_d, p_d_new, thresh=0.005):
         return True
     else:
         return False
+
+def turn_to_disk():
+    p_r, p_o, p_d = field_status()
+    next , phi = steering_angle(p_r,p_d[:2,3])
+    left, right = calc_motor_command(phi)
+    cntrlr.motor_command(-left, -right) 
 
 def reach_disk(p_r,p_d, path):
     print("finding the new position of the disk")
@@ -131,7 +137,7 @@ def reach_disk(p_r,p_d, path):
 
 def keep_straight():
         print("Keep straight!!")
-        cntrlr.motor_command(-1, -1)
+        cntrlr.motor_command(0.5, 0.5)
 
 # r include robot radius and disk radius
 def find_goal(p_d, r = 0.015):
@@ -158,7 +164,7 @@ if __name__ == "__main__":
 ##########################################################
     while cntrlr.Connected: #and cntrlr.communicate:
         p_r, p_o, p_d = field_status()
-        obs = None   ######################change
+        obs = []]   ######################change
         path_ = planner((p_r)[:2, 3].tolist(),
                           find_goal((p_d)[:2, 3].tolist()),
                           obs, show_animation=True)
@@ -167,6 +173,7 @@ if __name__ == "__main__":
         if not(with_disk(disk_relative_to_robot)):
             reach_disk()  
 
+        turn_to_disk()
 
         while(with_disk(disk_relative_to_robot)):
             keep_straight()

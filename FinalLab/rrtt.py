@@ -50,7 +50,7 @@ class RRT:
                  path_resolution=0.5,
                  goal_sample_rate=5,
                  max_iter=500,
-                 play_area=[-0.05,0.65],
+                 play_area=[-2,2],
                  robot_radius=0.0,
                  ):
         """
@@ -199,7 +199,7 @@ class RRT:
         plt.plot(self.start.x, self.start.y, "xr")
         plt.plot(self.end.x, self.end.y, "xr")
         plt.axis("equal")
-        plt.axis([-2, 15, -2, 15])
+        plt.axis([-2, 2, -2, 2])
         plt.grid(True)
         plt.pause(0.01)
 

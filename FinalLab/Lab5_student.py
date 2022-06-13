@@ -9,7 +9,9 @@ import numpy as np
 from rrt_star import  RRTStar , show_animation
 
 
-def planner(Pc, Pg, O, B=[-0.05, 0.65], delta=0.02, show_animation=True):
+def planner(Pc, Pg, O, B=[0, 0.5], expand_dis = .1, path_resolution = 0.01 ,robot_radius = 0.07, show_animation=True):
+        
+        
     """
 
     Args:
@@ -28,10 +30,10 @@ def planner(Pc, Pg, O, B=[-0.05, 0.65], delta=0.02, show_animation=True):
         start = Pc,
         goal = Pg,
         obstacle_list = O,
-        rand_area = [-0.05,0.65],
-        expand_dis = .1,
-        path_resolution = delta,
-        robot_radius = 0.03)
+        rand_area = B,
+        expand_dis = expand_dis,
+        path_resolution = path_resolution,
+        robot_radius = robot_radius)
 
     path = rrt_star.planning(animation = True) #
 
@@ -74,19 +76,17 @@ def main():
 
     # ====Search Path with RRT====
     obstacle_list = [
-        (5, 5, 1),
-        (8, 10, 1),
-        (6, 12, 1),
+
     ]  # [x,y,size(radius)]
 
     # Set Initial parameters
     rrt_star = RRTStar(
         start=[0, 0],
-        goal=[6, 10],
-        rand_area=[-2, 15],
+        goal=[0.9, 0.6],
+        rand_area=[-1, 1],
         obstacle_list=obstacle_list,
-        expand_dis=1,
-        robot_radius=0.8)
+        expand_dis=0.5,
+        robot_radius=0.001)
     path = rrt_star.planning(animation=show_animation)
 
     if path is None:
