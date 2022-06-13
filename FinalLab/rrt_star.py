@@ -38,7 +38,7 @@ class RRTStar(RRT):
                  obstacle_list,
                  rand_area,
                  expand_dis=2,
-                 path_resolution=0.01,
+                 path_resolution=0.001,
                  goal_sample_rate=20,
                  max_iter=50,
                  connect_circle_dist=50.0,

@@ -83,7 +83,7 @@ def main():
     rrt_star = RRTStar(
         start=[0, 0],
         goal=[0.9, 0.6],
-        rand_area=[-1, 1],
+        rand_area=[-0.5, 0.5],
         obstacle_list=obstacle_list,
         expand_dis=0.5,
         robot_radius=0.001)
