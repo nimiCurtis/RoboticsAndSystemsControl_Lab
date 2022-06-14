@@ -142,7 +142,7 @@ def keep_straight():
 # r include robot radius and disk radius
 def find_goal(p_d, r = 0.015):
     print("Finding the new position of the disk")
-    return [p_d[0] - r , p_d[1] , p_d[2]]
+    return [p_d[0] - r , p_d[1] , p_d[2]] # x - r , 
 
 
 if __name__ == "__main__":
@@ -164,12 +164,9 @@ if __name__ == "__main__":
 ##########################################################
     while cntrlr.Connected: #and cntrlr.communicate:
         p_r, p_o, p_d = field_status()
-        obs = []]   ######################change
-        path_ = planner((p_r)[:2, 3].tolist(),
-                          find_goal((p_d)[:2, 3].tolist()),
-                          obs, show_animation=True)
+        obs = []  ######################change
+        path_ = planner((p_r)[:2, 3].tolist(), find_goal((p_d)[:2, 3].tolist()), obs, show_animation=True)
         disk_relative_to_robot , phi_to_disk = steering_angle(p_r , p_d[:2,3])
-
         if not(with_disk(disk_relative_to_robot)):
             reach_disk()  
 
@@ -177,22 +174,6 @@ if __name__ == "__main__":
 
         while(with_disk(disk_relative_to_robot)):
             keep_straight()
-
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-
-
-
-
 
     # while cntrlr.Connected: #and cntrlr.communicate:
     #    if cv2.waitKey(1) & 0xFF == ord('q'):

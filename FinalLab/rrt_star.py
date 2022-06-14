@@ -30,7 +30,7 @@ class RRTStar(RRT):
     class Node(RRT.Node):
         def __init__(self, x, y):
             super().__init__(x, y)
-            self.cost = 0.0
+            self.cost = 0.1
 
     def __init__(self,
                  start,

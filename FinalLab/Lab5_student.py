@@ -9,7 +9,7 @@ import numpy as np
 from rrt_star import  RRTStar , show_animation
 
 
-def planner(Pc, Pg, O, B=[0, 0.5], expand_dis = .1, path_resolution = 0.01 ,robot_radius = 0.07, show_animation=True):
+def planner(Pc, Pg, O, B=[0,5 ], expand_dis = .1, path_resolution = 0.000001 ,robot_radius = 0.07, show_animation=True):
         
         
     """
