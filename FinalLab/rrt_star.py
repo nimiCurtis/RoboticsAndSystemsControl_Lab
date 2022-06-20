@@ -40,7 +40,7 @@ class RRTStar(RRT):
                  expand_dis=2,
                  path_resolution=0.001,
                  goal_sample_rate=20,
-                 max_iter=50,
+                 max_iter=100,
                  connect_circle_dist=50.0,
                  search_until_max_iter=False,
                  robot_radius=0.0):
