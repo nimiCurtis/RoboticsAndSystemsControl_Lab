@@ -15,7 +15,7 @@ class Robot:
         self.Rr = 0.06 # meters
         self.field = field
         self.disk = disk
-        self.disk_zone = 1.05*(self.Rr + self.disk.Rd)
+        self.disk_zone = 0.5*(self.Rr + self.disk.Rd)
         self.robot_id = robot_id
         if (self.robot_id == 1) :
             self.right_corner = self.field.corners["RD"]
@@ -54,6 +54,15 @@ class Robot:
 
     def get_position(self):
         return self.p_r
+
+    def transform(self,pose,phi,pos):
+        r = Rot.from_euler('z' , phi , degrees=True)
+        rotation = np.matmul(r.as_matrix(),self.A_r[:3,:3]) # in simulation the robot turning in the exact amount of degrees
+        position = np.concatenate([pos,[0,1]]) # the position will be exactly the next_pos 
+        pose[:3,:3] = rotation
+        pose[:,3] = position
+        return pose.copy()
+        
 
     def with_disk(self, disk_relative_to_robot ):
         distance_to_disk = np.linalg.norm(disk_relative_to_robot)
@@ -105,17 +114,26 @@ class Robot:
         d_left=np.cross(left_corner_relative_to_robot, opponent_relative_to_robot)/np.linalg.norm(left_corner_relative_to_robot)
         d_right=np.cross(right_corner_relative_to_robot, opponent_relative_to_robot)/np.linalg.norm(right_corner_relative_to_robot)
         
-        if np.abs(d_left) <= np.abs(d_right):
-            path = self.linear_path(self.right_corner)
+
+
+
+        if self.opponent_robot.get_position()[0]<self.disk.get_position()[0]:
+            if np.abs(d_left) <= np.abs(d_right):
+                path = self.linear_path(self.left_corner)
+            else:
+                path = self.linear_path(self.right_corner)
         else:
-            path = self.linear_path(self.left_corner)
+            if np.abs(d_left) <= np.abs(d_right):
+                path = self.linear_path(self.right_corner)
+            else:
+                path = self.linear_path(self.left_corner)
         return path ## may be path[::-1]
     
     def find_attacking_position(self):
         p_d = self.disk.get_position()
         return [p_d[0] - self.disk.Rd  , p_d[1]]
 
-    def planner_path(self, O=[], B=[0,0.2 ], expand_dis = .1, path_resolution = 0.001, show_animation=True):
+    def planner_path(self, O=[], B=[-0.5,0.5 ], expand_dis = .1, path_resolution = 0.001, show_animation=True):
         """
         Args:
             Pc: start point (x_s, y_s) --> list: len=2 OR np.array(): shape=(2,)
@@ -149,6 +167,7 @@ class Robot:
 
 
     def reach_disk(self, path):# q_r , q_e): # can't realy simulate this as it shuld be because we don't have input of the robot&disk positions from the camera
+        self.disk.set_position(self.disk.get_position())
         pose = np.zeros((4,4)) 
         for next_pos in path:
             self.plotter.fig.clf()
@@ -163,11 +182,7 @@ class Robot:
             dt = distance/self.vel
             if dt==0: dt=0.0001
             plt.pause(dt)
-            r = Rot.from_euler('z' , phi , degrees=True)
-            rotation = np.matmul(r.as_matrix(),self.A_r[:3,:3]) # in simulation the robot turning in the exact amount of degrees
-            position = np.concatenate([next_pos,[0,1]]) # the position will be exactly the next_pos 
-            pose[:3,:3] = rotation
-            pose[:,3] = position
+            pose = self.transform(pose,phi,next_pos)
             self.set_pose(pose) # updating robot pose
             #q_r.put(self.get_pose())
             #self.opponent_robot.set_pose(q_e.get())
@@ -200,12 +215,10 @@ class Robot:
             dt = distance/self.vel
             if dt==0: dt=0.0001
             plt.pause(dt)
-            r = Rot.from_euler('z' , phi , degrees=True)
-            rotation = np.matmul(r.as_matrix(),self.A_r[:3,:3]) # in simulation the robot turning in the exact amount of degrees
-            position = np.concatenate([next_pos,[0,1]]) # the position will be exactly the next_pos 
-            pose[:3,:3] = rotation
-            pose[:,3] = position
-            self.set_pose(pose) # updating robot pose 
+            
+            pose = self.transform(pose,phi,next_pos)
+
+            self.set_pose(pose.copy()) # updating robot pose 
             self.disk.set_position(next_pos) # in simulation the disk is moving with the robot
             disk_relative_to_robot, phi_to_disk = self.disk_pos_relative_to_robot()
             if self.with_disk(disk_relative_to_robot):
@@ -234,7 +247,9 @@ class Robot:
                     break
             else:
                     if self.disk.is_moving():
-                        pass
+                        path = self.linear_path(self.find_attacking_position())
+                        self.reach_disk(path)
+                        continue
                     else:
                         if self.first_attack:
                             path = self.linear_path(self.find_attacking_position())
@@ -246,7 +261,6 @@ class Robot:
                             path = self.planner_path(O=obstacles)
                         self.reach_disk(path) # q_r , q_e)
                         continue
-
 
 class Disk:
     def __init__(self, A_d):
@@ -270,16 +284,13 @@ class Disk:
         self.last_p_d = self.p_d
 
     def is_moving(self):
-        if(np.linalg.norm([self.last_p_d,self.p_d]) < 0.05) :
+        if(np.linalg.norm([self.last_p_d[0]-self.p_d[0],self.last_p_d[1]-self.p_d[1]]) < 0.05) :
             return False
         else:
             return True
     
     def set_ax(self,ax):
         self.ax = ax
-
-        
-
 
 class Field:
     def __init__(self,length , width):
@@ -298,7 +309,6 @@ class the_robot_games:
         self.run_game = True    
         self.score = [0,0]
 
-
     def is_goal(self):
         if self.robot1.goal==True:
             self.score[0]+=1
@@ -312,15 +322,13 @@ class the_robot_games:
     def reset_game(self):
         self.disk.reset_pose()
         self.robot1.reset_pose()
-        
+
 
     def set_score(self):
         pass
     
     def get_score(self):
         pass
-    
-
     
 
     def play_game(self):
@@ -334,22 +342,58 @@ class the_robot_games:
 
 
         ## sequence 2
-        self.reset_game()
-        r = Rot.from_euler('z' , 15 , degrees=True)
-        pose = np.zeros((4,4))
-        rotation = np.matmul(r.as_matrix(),self.robot1.A_r[:3,:3]) # in simulation the robot turning in the exact amount of degrees 
-        position = [-0.4, -0.32]
-        pose[:3,:3] = rotation.copy()
-        pose[:,3] = np.concatenate([position,[0 , 1]], axis=0)
-        self.robot1.set_pose(pose)
-        self.robot1.first_attack = False
+        # self.reset_game()
+        # pose1 = np.zeros((4,4))
+        # position1 = [-0.65, -0.36]
+        # pose1 = self.robot1.transform(pose1,15 , position1)
+        # self.robot1.set_pose(pose1.copy())
+        # self.robot1.first_attack = False
         
+        # pose2 = np.zeros((4,4))
+        # position2 = [0.4, 0.1]
+        # pose2 = self.robot2.transform(pose2, 0 , position2)
+        # self.robot2.set_pose(pose2.copy())
+
+
         # p1.start()
         # p2.start()
 
         # p1.join()
         # p2.join()
+
+        ## sequence 3
+        # self.reset_game()
+        # pose1 = np.zeros((4,4))
+        # position1 = [-0.65, -0.36]
+        # pose1 = self.robot1.transform(pose1,15 , position1)
+        # self.robot1.set_pose(pose1.copy())
+        # self.robot1.first_attack = False
+
+        # pose2 = np.zeros((4,4))
+        # position2 = [-0.3, -0.1]
+        # pose2 = self.robot2.transform(pose2, 0 , position2)
+        # self.robot2.set_pose(pose2.copy())
+
+        # sequence 4
+        self.reset_game()
+        pose1 = np.zeros((4,4))
+        position1 = [0.5,-0.1]
+        pose1 = self.robot1.transform(pose1,15 , position1)
+        self.robot1.set_pose(pose1.copy())
+        self.robot1.first_attack = False
+        
+        self.disk.set_position([-0.22,0.23])
+        pose2 = np.zeros((4,4))
+        position2 = [-0.05, -0.1]
+        pose2 = self.robot2.transform(pose2, -20 , position2)
+        self.robot2.set_pose(pose2.copy())
+
+
         self.robot1.play(self.run_game)
+
+
+
+
 
 
         plt.show()
@@ -426,8 +470,6 @@ def init_field_status(field):
     return init_pose_disk , init_pose_robot1, init_pose_robot2
 
 
-
-
 def main():
     field = Field(1.5,0.8)
     
@@ -440,22 +482,15 @@ def main():
 
     plotter = Plotter(disk , field , robot1, robot2)
 
-    #plotter.plot()
-    #plt.show()
+
     robot1.set_opponent(robot2)
     robot1.set_plotter(plotter)
-    
     robot2.set_opponent(robot1)
     robot2.set_plotter(plotter)
-
     game = the_robot_games(disk , field, robot1, robot2)
-
-    #p3 = Process(target=plotter.plot , args=(q1,q2,d,))
-
     game.play_game()
 
     a=1
-    
 
 if __name__ == "__main__":
     main()
