@@ -48,7 +48,7 @@ class RRT:
                  rand_area,
                  expand_dis=3.0,
                  path_resolution=0.5,
-                 goal_sample_rate=5,
+                 goal_sample_rate=10,
                  max_iter=500,
                  play_area=[-2,2],
                  robot_radius=0.0,
@@ -201,7 +201,7 @@ class RRT:
         plt.axis("equal")
         plt.axis([-0.5, 0.5, -0.75, 0.75])
         plt.grid(True)
-        plt.pause(0.01)
+        plt.pause(0.2)
 
     @staticmethod
     def plot_circle(x, y, size, color="-b"):  # pragma: no cover

@@ -5,6 +5,8 @@ from scipy.spatial.transform import Rotation as Rot
 import numpy as np
 from sympy import rotations
 
+
+# dont think there is a different between the Astar file and the rrt_star
 #from AStar import RRTStar, show_animation
 from rrt_star import  RRTStar , show_animation
 
@@ -210,7 +212,7 @@ class Robot:
         p_d = self.disk.get_position()
         return [p_d[0] - self.disk.radius  , p_d[1]]
 
-    def planner_path(self, O=[], B=[-0.5,0.5 ], expand_dis = .1, path_resolution = 0.001, show_animation=True):
+    def planner_path(self, O=[], B=[-0.5,0.5 ], expand_dis = .03, path_resolution = 0.001, show_animation=True):
         """
         Args:
             Pc: start point (x_s, y_s) --> list: len=2 OR np.array(): shape=(2,)
@@ -318,7 +320,7 @@ class Robot:
                 rotation = np.matmul(r.as_matrix(),self.A_r[:3,:3]) # in simulation the robot turning in the exact amount of degrees 
                 self.A_r[:3,:3] = rotation.copy() # rotate to the disk 
                 path = self.corner_path() # get path to the requierd corner
-                if self.move_to_score(path): # if the robot stop return True and stop the loop
+                if self.move_to_score(path): # if the robot score return True and stop the loop
                     self.goal = True
                     break
             else:
@@ -439,6 +441,10 @@ class the_robot_games:
         play game 
         """
         ## sequence 1
+        pose2 = np.zeros((4,4))
+        position2 = [0.1, 0.1]
+        pose2 = self.robot2.transform(pose2, 20 , position2)
+        self.robot2.set_pose(pose2.copy())
         self.robot1.play(self.run_game)
 
         ## sequence 2
@@ -448,9 +454,12 @@ class the_robot_games:
         pose1 = self.robot1.transform(pose1,15 , position1)
         self.robot1.set_pose(pose1.copy())
         self.robot1.first_attack = False
+
+        self.disk.set_position([-0.4,-0.23])
+        self.disk.set_position([-0.4,-0.23]) # double to set that the disk is not moving
         
         pose2 = np.zeros((4,4))
-        position2 = [0.4, 0.1]
+        position2 = [0.4, - 0.3]
         pose2 = self.robot2.transform(pose2, 0 , position2)
         self.robot2.set_pose(pose2.copy())
         
@@ -480,9 +489,27 @@ class the_robot_games:
         self.robot1.first_attack = False
         
         self.disk.set_position([-0.22,0.23])
+
         pose2 = np.zeros((4,4))
-        position2 = [-0.05, -0.1]
-        pose2 = self.robot2.transform(pose2, -20 , position2)
+        position2 = [-0.13, 0.26]
+        pose2 = self.robot2.transform(pose2, 0 , position2)
+        self.robot2.set_pose(pose2.copy())
+
+        self.robot1.play(self.run_game)
+
+        # sequence 5
+        self.reset_game()
+        pose1 = np.zeros((4,4))
+        position1 = [-0.7,-0.1]
+        pose1 = self.robot1.transform(pose1,15 , position1)
+        self.robot1.set_pose(pose1.copy())
+        self.robot1.first_attack = False
+        
+        self.disk.set_position([-0.1,-0.23])
+
+        pose2 = np.zeros((4,4))
+        position2 = [-0.04, -0.26]
+        pose2 = self.robot2.transform(pose2, 0 , position2)
         self.robot2.set_pose(pose2.copy())
 
         self.robot1.play(self.run_game)
